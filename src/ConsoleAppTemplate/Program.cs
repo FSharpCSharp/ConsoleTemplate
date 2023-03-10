@@ -7,6 +7,7 @@ using ConsoleAppTemplate.CommandLine.Sample.Handler;
 using ConsoleAppTemplate.CommandLine.Sample.Options;
 using ConsoleAppTemplate.CommandLine.Sample2.Handler;
 using ConsoleAppTemplate.CommandLine.Sample2.Options;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,8 +22,15 @@ internal class Program
             .UseHost(_ => Host.CreateDefaultBuilder(),
                 host =>
                 {
-                    host.ConfigureServices(services =>
+                    host.ConfigureAppConfiguration(config =>
+                    {
+                        config.SetBasePath(GetBasePath()).AddJsonFile("appsettings.json", false, true);
+                    });
+                    host.ConfigureServices((context, services) =>
                         {
+                            var configurationRoot = context.Configuration;
+                            services.AddOptions();
+                            services.Configure<SampleHandlerOptions>(configurationRoot.GetSection("SampleHandler"));
                             services.AddSingleton<ISampleHandler, SampleHandler>();
                             services.AddSingleton<ISampleHandler2, SampleHandler2>();
                         })
@@ -36,6 +44,24 @@ internal class Program
             .UseDefaults()
             .Build()
             .InvokeAsync(args);
+    }
+
+    private static string GetBasePath()
+    {
+        // ReSharper disable once JoinDeclarationAndInitializer
+        string basePath;
+#if DEBUG
+        basePath = AppContext.BaseDirectory;
+#else
+            using var processModule = System.Diagnostics.Process.GetCurrentProcess().MainModule;
+            basePath = System.IO.Path.GetDirectoryName(processModule?.FileName);
+#endif
+        if (Environment.CurrentDirectory.Equals(basePath, StringComparison.InvariantCultureIgnoreCase))
+            return basePath;
+
+        Environment.CurrentDirectory = basePath;
+
+        return basePath;
     }
 
     private static CommandLineBuilder BuildCommandLine()
