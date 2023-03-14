@@ -1,4 +1,4 @@
-﻿namespace ConsoleAppTemplate.CommandLine.Sample.Handler;
+﻿namespace ConsoleApp.CommandLine.Sample.Handler;
 
 internal sealed class SampleHandlerOptions
 {

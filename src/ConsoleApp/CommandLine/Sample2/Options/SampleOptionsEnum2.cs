@@ -1,4 +1,4 @@
-﻿namespace ConsoleAppTemplate.CommandLine.Sample2.Options;
+﻿namespace ConsoleApp.CommandLine.Sample2.Options;
 
 internal enum SampleOptionsEnum2
 {

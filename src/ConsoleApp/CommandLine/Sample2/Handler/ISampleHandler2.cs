@@ -1,6 +1,6 @@
-﻿using ConsoleAppTemplate.CommandLine.Sample2.Options;
+﻿using ConsoleApp.CommandLine.Sample2.Options;
 
-namespace ConsoleAppTemplate.CommandLine.Sample2.Handler;
+namespace ConsoleApp.CommandLine.Sample2.Handler;
 
 internal interface ISampleHandler2
 {

@@ -1,8 +1,8 @@
-﻿using ConsoleAppTemplate.CommandLine.Sample.Options;
+﻿using ConsoleApp.CommandLine.Sample.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ConsoleAppTemplate.CommandLine.Sample.Handler;
+namespace ConsoleApp.CommandLine.Sample.Handler;
 
 internal class SampleHandler : ISampleHandler
 {

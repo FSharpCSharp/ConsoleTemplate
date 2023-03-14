@@ -3,16 +3,16 @@ using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
-using ConsoleAppTemplate.CommandLine.Sample.Handler;
-using ConsoleAppTemplate.CommandLine.Sample.Options;
-using ConsoleAppTemplate.CommandLine.Sample2.Handler;
-using ConsoleAppTemplate.CommandLine.Sample2.Options;
+using ConsoleApp.CommandLine.Sample.Handler;
+using ConsoleApp.CommandLine.Sample.Options;
+using ConsoleApp.CommandLine.Sample2.Handler;
+using ConsoleApp.CommandLine.Sample2.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace ConsoleAppTemplate;
+namespace ConsoleApp;
 
 internal class Program
 {
