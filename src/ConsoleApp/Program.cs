@@ -11,13 +11,30 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Core;
+using Serilog.Settings.Configuration;
 
 namespace ConsoleApp;
 
 internal class Program
 {
+    private static Dictionary<string, LoggingLevelSwitch> _allSwitches;
+
+
     private static async Task<int> Main(string[] args)
     {
+        _allSwitches = new Dictionary<string, LoggingLevelSwitch>();
+        var options = new ConfigurationReaderOptions
+        {
+            OnLevelSwitchCreated = (switchName, levelSwitch) => _allSwitches[switchName] = levelSwitch
+        };
+
+        Log.Logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .CreateBootstrapLogger();
+
         return await BuildCommandLine()
             .UseHost(_ => Host.CreateDefaultBuilder(),
                 host =>
@@ -27,19 +44,16 @@ internal class Program
                         config.SetBasePath(GetBasePath()).AddJsonFile("appsettings.json", false, true);
                     });
                     host.ConfigureServices((context, services) =>
-                        {
-                            var configurationRoot = context.Configuration;
-                            services.AddOptions();
-                            services.Configure<SampleHandlerOptions>(configurationRoot.GetSection("SampleHandler"));
-                            services.AddSingleton<ISampleHandler, SampleHandler>();
-                            services.AddSingleton<ISampleHandler2, SampleHandler2>();
-                        })
-                        .ConfigureLogging(logging =>
-                        {
-                            logging.ClearProviders();
-                            logging.AddConsole();
-                            logging.AddDebug();
-                        });
+                    {
+                        var configurationRoot = context.Configuration;
+                        services.AddOptions();
+                        services.Configure<SampleHandlerOptions>(configurationRoot.GetSection("SampleHandler"));
+                        services.AddSingleton<ISampleHandler, SampleHandler>();
+                        services.AddSingleton<ISampleHandler2, SampleHandler2>();
+                    });
+                    host.UseSerilog((context, services, configuration) => configuration
+                        .ReadFrom.Configuration(context.Configuration, options)
+                        .Enrich.FromLogContext());
                 })
             .UseDefaults()
             .Build()
