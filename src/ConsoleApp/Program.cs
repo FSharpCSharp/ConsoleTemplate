@@ -3,6 +3,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
+using System.Resources;
 using ConsoleApp.CommandLine.Sample.Handler;
 using ConsoleApp.CommandLine.Sample.Options;
 using ConsoleApp.CommandLine.Sample2.Handler;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
+using Serilog.Events;
 using Serilog.Settings.Configuration;
 
 namespace ConsoleApp;
@@ -102,11 +104,21 @@ internal class Program
                 new Option<SampleOptionsEnum>("--Param3", "Enum Parameter 3")
                 {
                     IsRequired = true
+                },
+                new Option<LogEventLevel?>("--LogLevel", "Specifies the meaning and relative importance of a log event.")
+                {
+                    IsRequired = false
                 }
             };
 
         result.Handler = CommandHandler.Create(async (SampleOptions2 options, IHost host, CancellationToken token) =>
         {
+            if (options.LogLevel != null)
+            {
+                var controlSwitch = _allSwitches["$controlSwitch"];
+                controlSwitch.MinimumLevel = (LogEventLevel)options.LogLevel;
+            }
+
             var serviceProvider = host.Services;
             var sampleHandler = serviceProvider.GetRequiredService<ISampleHandler2>();
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
