@@ -3,7 +3,6 @@ using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
-using System.Resources;
 using ConsoleApp.CommandLine.Sample.Handler;
 using ConsoleApp.CommandLine.Sample.Options;
 using ConsoleApp.CommandLine.Sample2.Handler;
@@ -21,21 +20,13 @@ namespace ConsoleApp;
 
 internal class Program
 {
-    private static Dictionary<string, LoggingLevelSwitch> _allSwitches;
+    private static Dictionary<string, LoggingLevelSwitch>? _allSwitches;
+    private static ConfigurationReaderOptions? _options;
 
 
     private static async Task<int> Main(string[] args)
     {
-        _allSwitches = new Dictionary<string, LoggingLevelSwitch>();
-        var options = new ConfigurationReaderOptions
-        {
-            OnLevelSwitchCreated = (switchName, levelSwitch) => _allSwitches[switchName] = levelSwitch
-        };
-
-        Log.Logger = new LoggerConfiguration()
-            .Enrich.FromLogContext()
-            .WriteTo.Console()
-            .CreateBootstrapLogger();
+        CreateLogger();
 
         return await BuildCommandLine()
             .UseHost(_ => Host.CreateDefaultBuilder(),
@@ -54,12 +45,31 @@ internal class Program
                         services.AddSingleton<ISampleHandler2, SampleHandler2>();
                     });
                     host.UseSerilog((context, services, configuration) => configuration
-                        .ReadFrom.Configuration(context.Configuration, options)
+                        .ReadFrom.Configuration(context.Configuration, _options)
                         .Enrich.FromLogContext());
                 })
             .UseDefaults()
             .Build()
             .InvokeAsync(args);
+    }
+
+    private static void CreateLogger()
+    {
+        _allSwitches = new Dictionary<string, LoggingLevelSwitch>();
+        _options = new ConfigurationReaderOptions
+        {
+            OnLevelSwitchCreated = (switchName, levelSwitch) => _allSwitches[switchName] = levelSwitch
+        };
+
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(GetBasePath())
+            .AddJsonFile("appsettings.json", false, true)
+            .Build();
+
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration, _options)
+            .Enrich.FromLogContext()
+            .CreateBootstrapLogger();
     }
 
     private static string GetBasePath()
@@ -105,7 +115,8 @@ internal class Program
                 {
                     IsRequired = true
                 },
-                new Option<LogEventLevel?>("--LogLevel", "Specifies the meaning and relative importance of a log event.")
+                new Option<LogEventLevel?>("--LogLevel",
+                    "Specifies the meaning and relative importance of a log event.")
                 {
                     IsRequired = false
                 }
