@@ -3,6 +3,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
+using System.Text;
 using ConsoleApp.CommandLine.Sample.Handler;
 using ConsoleApp.CommandLine.Sample.Options;
 using ConsoleApp.CommandLine.Sample2.Handler;
@@ -26,6 +27,7 @@ internal class Program
 
     private static async Task<int> Main(string[] args)
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         CreateLogger();
 
         return await BuildCommandLine()
