@@ -38,6 +38,14 @@ internal class Program
                     {
                         config.SetBasePath(GetBasePath()).AddJsonFile("appsettings.json", false, true);
                     });
+                    host.UseDefaultServiceProvider((context, options) =>
+                    {
+                        if (!context.HostingEnvironment.IsDevelopment())
+                            return;
+
+                        options.ValidateScopes = false;
+                        options.ValidateOnBuild = false;
+                    });
                     host.ConfigureServices((context, services) =>
                     {
                         var configurationRoot = context.Configuration;
