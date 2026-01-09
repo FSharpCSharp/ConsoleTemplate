@@ -11,48 +11,48 @@ namespace ConsoleApp.CommandLine.Sample2.Command;
 
 internal class SampleCommand2 : System.CommandLine.Command
 {
-    public SampleCommand2() : base("Sample2", "Sample Command 2")
-    {
-        Add(Param1Option);
-        Add(Param2Option);
-        Add(Param3Option);
-        Add(LogLevelOption);
-
-        SetAction(CommandAction);
-    }
-
-    private static Option<string> Param1Option =>
-        new("--Param1")
-        {
-            Required = true,
-            Description = "String Parameter 1"
-        };
-
-    private static Option<int> Param2Option =>
-        new("--Param2")
-        {
-            Required = false,
-            Description = "Integer Parameter 2"
-        };
-
-    private static Option<SampleOptionsEnum2> Param3Option =>
-        new("--Param3")
-        {
-            Required = true,
-            Description = "Enum Parameter 3"
-        };
-
-    private static Option<LogEventLevel?> LogLevelOption =>
+    private readonly Option<LogEventLevel?> _logLevelOption =
         new("--LogLevel")
         {
             Required = false,
             Description = "Specifies the meaning and relative importance of a log event."
         };
 
+    private readonly Option<string> _param1Option =
+        new("--Param1")
+        {
+            Required = true,
+            Description = "String Parameter 1"
+        };
+
+    private readonly Option<int> _param2Option =
+        new("--Param2")
+        {
+            Required = false,
+            Description = "Integer Parameter 2"
+        };
+
+    private readonly Option<SampleOptionsEnum2> _param3Option =
+        new("--Param3")
+        {
+            Required = true,
+            Description = "Enum Parameter 3"
+        };
+
+    public SampleCommand2() : base("Sample2", "Sample Command 2")
+    {
+        Options.Add(_param1Option);
+        Options.Add(_param2Option);
+        Options.Add(_param3Option);
+        Options.Add(_logLevelOption);
+
+        SetAction(CommandAction);
+    }
+
     private async Task<int> CommandAction(ParseResult result)
     {
-        var options = new SampleOptions2(result.GetRequiredValue(Param1Option), result.GetValue(Param2Option),
-            result.GetRequiredValue(Param3Option), result.GetValue(LogLevelOption));
+        var options = new SampleOptions2(result.GetRequiredValue(_param1Option), result.GetValue(_param2Option),
+            result.GetRequiredValue(_param3Option), result.GetValue(_logLevelOption));
 
         var settings = new HostBuilderSettings();
         var host = HostBuilderHelper.CreateHostBuilder(settings)
